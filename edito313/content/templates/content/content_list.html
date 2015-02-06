@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% load webdesign %}
+
+{% block title %}{% lorem 3 w %}{% endblock %}
+
+{% block content %}
+	<main>
+		{% for content in object_list %}
+			<h2><a href='{% url "content detail" pk=content.pk %}'>
+				{{ content.title }}</a></h2>
+			{{ content.text|urlize|linebreaks }}
+		{% empty %}
+			<h2>Nothing found.</h2>
+			<p>We're sorry, but could not find any result for your request.</p>
+		{% endfor %}
+	</main>
+{% endblock %}
+

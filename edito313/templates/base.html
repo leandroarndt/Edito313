@@ -1,0 +1,35 @@
+{% load webdesign staticfiles %}<!DOCTYPE HTML> 
+<html>
+	<head>
+		<link rel='stylesheet' type='text/css' href='{% static "style.css"%}' />
+		<title>{% block title %}{% endblock %}</title>
+	</head>
+	<body>
+		<div class='header'>
+			{#<!-- TODO: Insert header hook -->#}
+			<div class='header'>
+				<h1>{% lorem 3 w random %}</h1>
+				{% lorem 1 b random %}
+			</div>
+		</div>
+		
+		<div class='content'>
+			<main>
+				{% include 'djangospam/cookieform.html' %}
+				{% block content %}
+					{% lorem 6 p %}
+				{% endblock %}
+			</main>
+		
+			<div class='sidebar'>
+				{#<!-- TODO: Insert sidebar hook -->#}
+				{% lorem 2 p random %}
+			</div>
+		</div>
+		
+		<div class='footer'>
+			{#<!-- TODO: Insert footer hook -->#}
+			Powered by Edito 313.
+		</div>
+	</body>
+</html>
