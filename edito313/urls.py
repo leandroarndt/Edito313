@@ -11,5 +11,5 @@ urlpatterns = patterns('',
     url(r'^django/', include(admin.site.urls)),
     url(r'^', include('content.urls')),
     (r'^comments/', include('djangospam.cookie.urls')),
-    #(r'^spam/', include('django.contrib.comments.urls')),
+    (r'^spam/', include('django_comments.urls')),
 )

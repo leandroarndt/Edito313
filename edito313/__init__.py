@@ -13,4 +13,5 @@ django
 djangospam
 django-taggit
 django-contrib-comments
+pytz
 """

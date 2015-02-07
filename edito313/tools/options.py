@@ -1,6 +1,5 @@
 _registered = []
 
-# TODO: make options.register() a decorator
 def register(option_cls, model_cls):
     global _registered
     
