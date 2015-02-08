@@ -30,22 +30,18 @@ added at runtime."""
 
     type = models.CharField(max_length=50, choices=TYPES.choices())
     parent = models.ManyToManyField('self', blank=True, null=True)
-    # TODO: ensure configurable slug uniqueness
-    slug = models.SlugField(max_length=200, blank=True)
-    author = models.ForeignKey(User, blank=True, null=True)
-    #author_mail = models.EmailField(max_length=254)
-    #author_ip = models.GenericIPAddressField()
-    created = models.DateTimeField(auto_now_add=True)
-    published = models.DateTimeField(blank=True)
-    edited = models.DateTimeField(auto_now=True)
-    approved = models.BooleanField(default=False)
-    pending = models.BooleanField(default=True)
     title = models.CharField(max_length=200)
     text = RichTextField(blank=False)
     tags = TaggableManager(blank=True) 
+    slug = models.SlugField(max_length=200, blank=True)
+    author = models.ForeignKey(User, blank=True, null=True)
+    creation = models.DateTimeField(auto_now_add=True)
+    publishing = models.DateTimeField(blank=True)
+    editing = models.DateTimeField(auto_now=True)
+    published = models.BooleanField(default=False)
     
     class Meta:
-        ordering = ['published', 'title', 'author__name']
+        ordering = ['publishing', 'title', 'author__name']
         
     def __str__(self):
         return '{type}: {title}'.format(type=self.get_type_display(),
@@ -67,20 +63,20 @@ added at runtime."""
                         valid = False
                 elif options.unique == Options.UNIQUE.DATE.name:
                     obj = Content.objects.get(type=self.type, slug=self.slug,
-                            published_datetime__day=self.published_datetime.day,
-                            published_datetime__month=self.published_datetime.month,
-                            published_datetime__year=self.published_datetime.year)
+                            publishing__day=self.publishing.day,
+                            publishing__month=self.publishing.month,
+                            publishing__year=self.publishing.year)
                     if obj.pk != self.pk:
                         valid = False
                 elif options.unique == Options.UNIQUE.MONTH.name:
                     obj = Content.objects.get(type=self.type, slug=self.slug,
-                            published_datetime__month=self.published_datetime.month,
-                            published_datetime__year=self.published_datetime.year)
+                            publishing__month=self.publishing.month,
+                            publishing__year=self.publishing.year)
                     if obj.pk != self.pk:
                         valid = False
                 elif options.unique == Options.UNIQUE.YEAR.name:
                     obj = Content.objects.get(type=self.type, slug=self.slug, \
-                            published_datetime__year=self.published_datetime.year)
+                            publishing__year=self.publishing.year)
                     if obj.pk != self.pk:
                         valid = False
                 if not valid:
@@ -109,6 +105,8 @@ added at runtime."""
 
 class Options(models.Model):
     """Administrative options for each content type.""" 
+    
+    @unique
     class UNIQUE(Choices):
         NONE = 'none'
         TOTALLY_UNIQUE = 'totally unique'
@@ -119,8 +117,6 @@ class Options(models.Model):
     type = models.CharField(max_length=50, choices=Content.TYPES.choices(), unique=True)
     unique = models.CharField(max_length=50, choices=UNIQUE.choices(),
                               default=UNIQUE.NONE.name)
-    approve_permission = models.CharField(max_length=50, blank=True)
-    must_be_reviewed = models.BooleanField(default=False)
     
     class Meta:
         verbose_name_plural = 'options'
