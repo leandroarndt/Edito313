@@ -12,3 +12,9 @@ django
 djangospam
 django-taggit
 django-contrib-comments
+pytz
+django-ckeditor
+
+Planned plugins:
+Tag cloud (using django-taggit-templatetags?)
+oEmbed
