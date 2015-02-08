@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError,\
     MultipleObjectsReturned, NON_FIELD_ERRORS
 from taggit.managers import TaggableManager
 from djangospam.cookie import moderator as cookie
+from ckeditor.fields import RichTextField
 from edito313.tools.choices import Choices, unique
 from edito313.tools import options
 
@@ -39,7 +40,7 @@ added at runtime."""
     approved = models.BooleanField(default=False)
     pending = models.BooleanField(default=True)
     title = models.CharField(max_length=200)
-    text = models.TextField(blank=False)
+    text = RichTextField(blank=False)
     tags = TaggableManager(blank=True) 
     
     class Meta:
