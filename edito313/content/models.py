@@ -34,9 +34,10 @@ added at runtime."""
     slug = models.SlugField(max_length=200, blank=True)
     author = models.ForeignKey(User, blank=True, null=True)
     #author_mail = models.EmailField(max_length=254)
-    author_ip = models.GenericIPAddressField()
-    datetime = models.DateTimeField(auto_now_add=True)
-    published_datetime = models.DateTimeField(blank=True)
+    #author_ip = models.GenericIPAddressField()
+    created = models.DateTimeField(auto_now_add=True)
+    published = models.DateTimeField(blank=True)
+    edited = models.DateTimeField(auto_now=True)
     approved = models.BooleanField(default=False)
     pending = models.BooleanField(default=True)
     title = models.CharField(max_length=200)
@@ -44,7 +45,7 @@ added at runtime."""
     tags = TaggableManager(blank=True) 
     
     class Meta:
-        ordering = ['published_datetime', 'datetime', 'title']
+        ordering = ['published', 'title', 'author__name']
         
     def __str__(self):
         return '{type}: {title}'.format(type=self.get_type_display(),
