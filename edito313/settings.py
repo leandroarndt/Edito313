@@ -66,7 +66,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    #'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
@@ -76,6 +76,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'edito313.urls'
+APPEND_SLASH = False # Content URLs won't work if we append slashes.
 
 WSGI_APPLICATION = 'edito313.wsgi.application'
 

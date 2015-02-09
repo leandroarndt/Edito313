@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError,\
-    MultipleObjectsReturned, NON_FIELD_ERRORS
+    MultipleObjectsReturned, NON_FIELD_ERRORS, FieldError
 from taggit.managers import TaggableManager
 from djangospam.cookie import moderator as cookie
 from ckeditor.fields import RichTextField
@@ -51,23 +51,22 @@ added at runtime."""
     def excerpt(self):
         return self.text
     
-    # TODO content URI
     def uri(self):
         """Return content URI according to options."""
         opt = Options.get(self)
         uri = '/'+opt.uri_prefix # TODO: change site model to allow a per-site prefix.
         if opt.unique == Options.UNIQUE.TOTALLY_UNIQUE.name:
-            return uri + self.slug + '/'
+            return uri + self.slug
         elif opt.unique == Options.UNIQUE.DATE.name:
             return uri + '/'.join((str(self.publishing.year), str(self.publishing.month),
-                                  str(self.publishing.date), self.slug, ''))
+                                  str(self.publishing.day), self.slug))
         elif opt.unique == Options.UNIQUE.MONTH.name:
             return uri + '/'.join((str(self.publishing.year), str(self.publishing.month),
-                                  self.slug, ''))
+                                  self.slug))
         elif opt.unique == Options.UNIQUE.YEAR.name:
-            return uri + '/'.join((str(self.publishing.year), self.slug, ''))
+            return uri + '/'.join((str(self.publishing.year), self.slug))
         else:
-            return uri + '/'.join((str(self.pk) ,self.slug, ''))
+            return uri + '/'.join(('pk-'+str(self.pk) ,self.slug))
     
     def validate_unique(self, *args, **kwargs):
         """Validates for slug uniqueness."""
@@ -114,7 +113,7 @@ added at runtime."""
             # No conflicting slug found.
             pass
         if not valid:
-            raise (ValidationError, 'Unknown validation error.')
+            raise ValidationError({NON_FIELD_ERRORS: ('Unknown validation error.',)})
         super(Content, self).validate_unique(*args, **kwargs)
 
 class Options(models.Model):
@@ -128,20 +127,38 @@ class Options(models.Model):
         MONTH = 'month'
         YEAR = 'year'
         
-    type = models.CharField(max_length=50, choices=Content.TYPES.choices(), unique=True)
+    type = models.CharField(max_length=50, choices=Content.TYPES.choices()+(('','default'),),
+                            unique=True, blank=True)
     unique = models.CharField(max_length=50, choices=UNIQUE.choices(),
                               default=UNIQUE.NONE.name)
-    uri_prefix = models.CharField(max_length=50, blank=True)
+    uri_prefix = models.CharField(max_length=50, blank=True, verbose_name='URI prefix')
     exclude_from_archive = models.BooleanField(default=False)
     
     class Meta:
         verbose_name_plural = 'options'
     
     def __str__(self):
-        if self.type != '':
             return '{type} options'.format(type=self.get_type_display()).capitalize()
-        else:
-            return 'Default options'
+    
+    def clean_fields(self, *args, **kwargs):
+        if self.uri_prefix != '' and not self.uri_prefix.endswith('/'):
+            raise ValidationError({'uri_prefix': 'URI prefix should be blank or end with "/".'})
+        if self.uri_prefix == '/':
+            raise ValidationError({'uri_prefix': 'Keep URI prefix blank if you don\'t want any prefix'})
+        super(Options, self).clean_fields(*args, **kwargs) 
+    
+    def validate_unique(self, *args, **kwargs):
+        # Validate the uniqueness of the prefix
+        if self.uri_prefix != '':
+            try:
+                obj = Options.objects.get(uri_prefix=self.uri_prefix)
+                if obj.pk != self.pk:
+                    raise MultipleObjectsReturned
+            except MultipleObjectsReturned:
+                raise ValidationError({NON_FIELD_ERRORS: ('URI prefix must be blank or unique.')})
+            except ObjectDoesNotExist:
+                pass
+        return super(Options, self).validate_unique(*args, **kwargs)
     
     @classmethod
     def get(cls, model):
