@@ -59,18 +59,18 @@ added at runtime."""
         except ObjectDoesNotExist:
             opt = Options.objects.get(type='')
         uri = '/'+opt.uri_prefix # TODO: change site model to allow a per-site prefix.
-        if opt.unique == Options.UNIQUE.TOTALLY_UNIQUE:
+        if opt.unique == Options.UNIQUE.TOTALLY_UNIQUE.name:
             return uri + self.slug + '/'
-        elif opt.unique == Options.UNIQUE.DATE:
-            return uri + '/'.join(self.publishing.year, self.publishing.month,
-                                  self.publishing.date, self.slug, '')
-        elif opt.unique == Options.UNIQUE.MONTH:
-            return uri + '/'.join(self.publishing.year, self.publishing.month,
-                                  self.slug, '')
-        elif opt.unique == Options.UNIQUE.YEAR:
-            return uri + '/'.join(self.publishing.year, self.slug, '')
+        elif opt.unique == Options.UNIQUE.DATE.name:
+            return uri + '/'.join((str(self.publishing.year), str(self.publishing.month),
+                                  str(self.publishing.date), self.slug, ''))
+        elif opt.unique == Options.UNIQUE.MONTH.name:
+            return uri + '/'.join((str(self.publishing.year), str(self.publishing.month),
+                                  self.slug, ''))
+        elif opt.unique == Options.UNIQUE.YEAR.name:
+            return uri + '/'.join((str(self.publishing.year), self.slug, ''))
         else:
-            return uri + '/'.join(self.pk ,self.slug, '')
+            return uri + '/'.join((str(self.pk) ,self.slug, ''))
     
     def validate_unique(self, *args, **kwargs):
         """Validates for slug uniqueness."""
