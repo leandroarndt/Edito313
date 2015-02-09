@@ -54,10 +54,7 @@ added at runtime."""
     # TODO content URI
     def uri(self):
         """Return content URI according to options."""
-        try:
-            opt = Options.objects.get(type=self.type)
-        except ObjectDoesNotExist:
-            opt = Options.objects.get(type='')
+        opt = Options.get(self)
         uri = '/'+opt.uri_prefix # TODO: change site model to allow a per-site prefix.
         if opt.unique == Options.UNIQUE.TOTALLY_UNIQUE.name:
             return uri + self.slug + '/'
@@ -75,51 +72,46 @@ added at runtime."""
     def validate_unique(self, *args, **kwargs):
         """Validates for slug uniqueness."""
         valid = True
+        options = Options.get(self)
         try:
-            options = Options.objects.get(type=self.type)
-            try:
-                if options.unique == Options.UNIQUE.TOTALLY_UNIQUE.name:
-                    obj = Content.objects.get(type=self.type, slug=self.slug)
-                    if obj.pk != self.pk:
-                        valid = False
-                elif options.unique == Options.UNIQUE.DATE.name:
-                    obj = Content.objects.get(type=self.type, slug=self.slug,
-                            publishing__day=self.publishing.day,
-                            publishing__month=self.publishing.month,
-                            publishing__year=self.publishing.year)
-                    if obj.pk != self.pk:
-                        valid = False
-                elif options.unique == Options.UNIQUE.MONTH.name:
-                    obj = Content.objects.get(type=self.type, slug=self.slug,
-                            publishing__month=self.publishing.month,
-                            publishing__year=self.publishing.year)
-                    if obj.pk != self.pk:
-                        valid = False
-                elif options.unique == Options.UNIQUE.YEAR.name:
-                    obj = Content.objects.get(type=self.type, slug=self.slug, \
-                            publishing__year=self.publishing.year)
-                    if obj.pk != self.pk:
-                        valid = False
-                if not valid:
-                    raise ValidationError({
-                                           NON_FIELD_ERRORS: (\
-                                          '"{slug}" is not a unique {type} slug.'\
-                                          .format(slug=self.slug, type=self.get_type_display()))
-                                             })
-            except MultipleObjectsReturned:
+            if options.unique == Options.UNIQUE.TOTALLY_UNIQUE.name:
+                obj = Content.objects.get(type=self.type, slug=self.slug)
+                if obj.pk != self.pk:
+                    valid = False
+            elif options.unique == Options.UNIQUE.DATE.name:
+                obj = Content.objects.get(type=self.type, slug=self.slug,
+                        publishing__day=self.publishing.day,
+                        publishing__month=self.publishing.month,
+                        publishing__year=self.publishing.year)
+                if obj.pk != self.pk:
+                    valid = False
+            elif options.unique == Options.UNIQUE.MONTH.name:
+                obj = Content.objects.get(type=self.type, slug=self.slug,
+                        publishing__month=self.publishing.month,
+                        publishing__year=self.publishing.year)
+                if obj.pk != self.pk:
+                    valid = False
+            elif options.unique == Options.UNIQUE.YEAR.name:
+                obj = Content.objects.get(type=self.type, slug=self.slug, \
+                        publishing__year=self.publishing.year)
+                if obj.pk != self.pk:
+                    valid = False
+            if not valid:
                 raise ValidationError({
-                                           NON_FIELD_ERRORS: (\
-                                          '"{slug}" is not a unique {type} slug.'\
-                                          .format(slug=self.slug, type=self.get_type_display()),
-                                          'There is already more than one {type} with slug "{slug}". Correct this urgently.'\
-                                          .format(slug=self.slug, type=self.get_type_display()))
-                                             })
-            except ObjectDoesNotExist:
-                # No conflicting slug found.
-                pass
+                                       NON_FIELD_ERRORS: (\
+                                      '"{slug}" is not a unique {type} slug.'\
+                                      .format(slug=self.slug, type=self.get_type_display()))
+                                         })
+        except MultipleObjectsReturned:
+            raise ValidationError({
+                                       NON_FIELD_ERRORS: (\
+                                      '"{slug}" is not a unique {type} slug.'\
+                                      .format(slug=self.slug, type=self.get_type_display()),
+                                      'There is already more than one {type} with slug "{slug}". Correct this urgently.'\
+                                      .format(slug=self.slug, type=self.get_type_display()))
+                                         })
         except ObjectDoesNotExist:
-            # TODO: Adapt to blank type (default options)
-            # No uniqueness defined.
+            # No conflicting slug found.
             pass
         if not valid:
             raise (ValidationError, 'Unknown validation error.')
@@ -146,7 +138,17 @@ class Options(models.Model):
         verbose_name_plural = 'options'
     
     def __str__(self):
-        return '{type} options'.format(type=self.get_type_display()).capitalize()
+        if self.type != '':
+            return '{type} options'.format(type=self.get_type_display()).capitalize()
+        else:
+            return 'Default options'
+    
+    @classmethod
+    def get(cls, model):
+        try:
+            return cls.objects.get(type=model.type)
+        except ObjectDoesNotExist:
+            return cls.objects.get(type='')
 
 options.register(Options, Content)
 
