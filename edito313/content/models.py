@@ -28,7 +28,7 @@ added at runtime."""
                          TYPES.QUOTE: (TYPES.CATEGORY,),
                          TYPES.IMAGE: (TYPES.CATEGORY,),}
 
-    type = models.CharField(max_length=50, choices=TYPES.choices())
+    type = models.CharField(max_length=50, choices=TYPES.choices(), blank=True)
     parent = models.ManyToManyField('self', blank=True, null=True)
     title = models.CharField(max_length=200)
     text = RichTextField(blank=False)
@@ -41,7 +41,7 @@ added at runtime."""
     published = models.BooleanField(default=False)
     
     class Meta:
-        ordering = ['publishing', 'title', 'author__name']
+        ordering = ['publishing', 'title']
         
     def __str__(self):
         return '{type}: {title}'.format(type=self.get_type_display(),
@@ -51,8 +51,29 @@ added at runtime."""
     def excerpt(self):
         return self.text
     
+    # TODO content URI
+    def uri(self):
+        """Return content URI according to options."""
+        try:
+            opt = Options.objects.get(type=self.type)
+        except ObjectDoesNotExist:
+            opt = Options.objects.get(type='')
+        uri = '/'+opt.uri_prefix # TODO: change site model to allow a per-site prefix.
+        if opt.unique == Options.UNIQUE.TOTALLY_UNIQUE:
+            return uri + self.slug + '/'
+        elif opt.unique == Options.UNIQUE.DATE:
+            return uri + '/'.join(self.publishing.year, self.publishing.month,
+                                  self.publishing.date, self.slug, '')
+        elif opt.unique == Options.UNIQUE.MONTH:
+            return uri + '/'.join(self.publishing.year, self.publishing.month,
+                                  self.slug, '')
+        elif opt.unique == Options.UNIQUE.YEAR:
+            return uri + '/'.join(self.publishing.year, self.slug, '')
+        else:
+            return uri + '/'.join(self.pk ,self.slug, '')
+    
     def validate_unique(self, *args, **kwargs):
-        """Validates for slulg uniqueness."""
+        """Validates for slug uniqueness."""
         valid = True
         try:
             options = Options.objects.get(type=self.type)
@@ -97,6 +118,7 @@ added at runtime."""
                 # No conflicting slug found.
                 pass
         except ObjectDoesNotExist:
+            # TODO: Adapt to blank type (default options)
             # No uniqueness defined.
             pass
         if not valid:
@@ -117,6 +139,8 @@ class Options(models.Model):
     type = models.CharField(max_length=50, choices=Content.TYPES.choices(), unique=True)
     unique = models.CharField(max_length=50, choices=UNIQUE.choices(),
                               default=UNIQUE.NONE.name)
+    uri_prefix = models.CharField(max_length=50, blank=True)
+    exclude_from_archive = models.BooleanField(default=False)
     
     class Meta:
         verbose_name_plural = 'options'
