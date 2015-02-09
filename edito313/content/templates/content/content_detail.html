@@ -8,7 +8,7 @@
 	<main>
 		<h2><a href='{% url "content detail" pk=content.pk %}'>
 			{{ content.title }}</a></h2>
-		{{ content.text|urlize|linebreaks }}
+		{{ content.text|safe|urlize|linebreaks }}
 	</main>
 {% endblock %}
 

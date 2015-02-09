@@ -7,9 +7,9 @@
 {% block content %}
 	<main>
 		{% for content in object_list %}
-			<h2><a href='{% url "content detail" pk=content.pk %}'>
+			<h2><a href='{{ content.uri }}'>
 				{{ content.title }}</a></h2>
-			{{ content.text|urlize|linebreaks }}
+			{{ content.excerpt|safe|urlize|linebreaks }}
 		{% empty %}
 			<h2>Nothing found.</h2>
 			<p>We're sorry, but could not find any result for your request.</p>
