@@ -8,7 +8,7 @@ urlpatterns = patterns('',
     
     #discover.DownloadedPlugin.urls,
 
-    url(r'^django/', include(admin.site.urls)),
+    url(r'^admin/django/', include(admin.site.urls)),
     (r'^ckeditor/', include('ckeditor.urls')),
     (r'^comments/', include('djangospam.cookie.urls')),
     (r'^spam/', include('django_comments.urls')),
