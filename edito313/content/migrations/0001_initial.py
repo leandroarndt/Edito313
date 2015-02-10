@@ -2,9 +2,9 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import ckeditor.fields
 import taggit.managers
 from django.conf import settings
-import ckeditor.fields
 
 
 class Migration(migrations.Migration):
@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Content',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
-                ('type', models.CharField(choices=[('BLOGPOST', 'blog post'), ('PAGE', 'page'), ('QUOTE', 'quote'), ('IMAGE', 'image'), ('CATEGORY', 'category')], max_length=50)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('type', models.CharField(max_length=50, blank=True, choices=[('BLOGPOST', 'blog post'), ('PAGE', 'page'), ('QUOTE', 'quote'), ('IMAGE', 'image'), ('CATEGORY', 'category')])),
                 ('title', models.CharField(max_length=200)),
                 ('text', ckeditor.fields.RichTextField()),
                 ('slug', models.SlugField(max_length=200, blank=True)),
@@ -27,9 +27,9 @@ class Migration(migrations.Migration):
                 ('publishing', models.DateTimeField(blank=True)),
                 ('editing', models.DateTimeField(auto_now=True)),
                 ('published', models.BooleanField(default=False)),
-                ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, blank=True)),
-                ('parent', models.ManyToManyField(null=True, related_name='parent_rel_+', to='content.Content', blank=True)),
-                ('tags', taggit.managers.TaggableManager(through='taggit.TaggedItem', verbose_name='Tags', to='taggit.Tag', help_text='A comma-separated list of tags.', blank=True)),
+                ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('parent', models.ManyToManyField(blank=True, null=True, to='content.Content')),
+                ('tags', taggit.managers.TaggableManager(verbose_name='Tags', blank=True, through='taggit.TaggedItem', to='taggit.Tag', help_text='A comma-separated list of tags.')),
             ],
             options={
                 'ordering': ['publishing', 'title'],
@@ -39,10 +39,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Options',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
-                ('type', models.CharField(unique=True, choices=[('BLOGPOST', 'blog post'), ('PAGE', 'page'), ('QUOTE', 'quote'), ('IMAGE', 'image'), ('CATEGORY', 'category')], max_length=50, blank=True)),
-                ('unique', models.CharField(default='NONE', choices=[('NONE', 'none'), ('TOTALLY_UNIQUE', 'totally unique'), ('DATE', 'date'), ('MONTH', 'month'), ('YEAR', 'year')], max_length=50)),
-                ('uri_prefix', models.CharField(max_length=50, blank=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('type', models.CharField(max_length=50, unique=True, blank=True, choices=[('BLOGPOST', 'blog post'), ('PAGE', 'page'), ('QUOTE', 'quote'), ('IMAGE', 'image'), ('CATEGORY', 'category'), ('', 'default')])),
+                ('unique', models.CharField(max_length=50, default='NONE', choices=[('NONE', 'none'), ('TOTALLY_UNIQUE', 'totally unique'), ('DATE', 'date'), ('MONTH', 'month'), ('YEAR', 'year')])),
+                ('uri_prefix', models.CharField(verbose_name='URI prefix', max_length=50, blank=True)),
                 ('exclude_from_archive', models.BooleanField(default=False)),
             ],
             options={

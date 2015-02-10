@@ -40,3 +40,13 @@ main {
 	text-align: center;
 	clear: both;
 }
+
+.comments form label {
+	display: inline-block;
+	width: 8rem;
+	vertical-align: top;
+}
+
+.comments form input:not(.submit-post), .comments form textarea {
+	width: 40rem;
+}

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load webdesign %}
+{% load webdesign comments %}
 
 {% block title %}{{ content.title }}{% endblock %}
 
@@ -9,9 +9,23 @@
 		<article>
 			<h2><a href='{% url "content" uri=content.uri %}'>{{ content.title }}</a></h2>
 			{{ content.text|safe|urlize|linebreaks }}
-			<meta>
+			{% for child in content.children.all %}
+				{% if forloop.first %}
+					<div class='children'>Archived under this {{ content.get_type_display }}:<ul>
+				{% endif %}
+					<li><a href='{% url "content" uri=child.uri %}'>{{ child.title }}
+						{{ child.excerpt|safe }}</a>
+					</li>
+				{% if forloop.last %}</ul></div>{% endif %}
+			{% endfor %}
+			<detail>
 				{% include 'content/content_meta.html' %}
-			</meta>
+			</detail>
+			<div class='comments'>
+				<a name='comments'></a><p>Join the convesation on &ldquo;{{ content.title }}&rdquo;:</p>
+				{% render_comment_list for content %}
+				{% render_comment_form for content %}
+			</div>
 		</article>
 	</main>
 {% endblock %}

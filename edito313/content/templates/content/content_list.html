@@ -11,7 +11,11 @@
 				<h2><a href='{% url "content" uri=content.uri %}'>
 					{{ content.title }}</a></h2>
 				{{ content.excerpt|safe|urlize|linebreaks }}
-				<meta>{% include 'content/content_meta.html' %}</meta>
+				<meta>
+					{% include 'content/content_meta.html' %}
+					<p><a href='{% url "content" uri=content.uri %}'>Join the conversation about
+						&ldquo;{{ content.title }}&rdquo;</a></p>
+				</meta>
 			</article>
 		{% empty %}
 			<h2>Nothing found.</h2>

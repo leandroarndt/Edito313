@@ -29,12 +29,13 @@ added at runtime."""
                          TYPES.IMAGE: (TYPES.CATEGORY,),}
 
     type = models.CharField(max_length=50, choices=TYPES.choices(), blank=True)
-    parent = models.ManyToManyField('self', blank=True, null=True)
+    parent = models.ManyToManyField('self', blank=True, null=True, symmetrical=False,
+                                    related_name='children')
     title = models.CharField(max_length=200)
     text = RichTextField(blank=False)
     tags = TaggableManager(blank=True) 
     slug = models.SlugField(max_length=200, blank=True)
-    author = models.ForeignKey(User, blank=True, null=True)
+    author = models.ForeignKey(User)
     creation = models.DateTimeField(auto_now_add=True)
     publishing = models.DateTimeField(blank=True)
     editing = models.DateTimeField(auto_now=True)

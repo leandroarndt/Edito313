@@ -1,15 +1,15 @@
 <div class='author'>
-	Author: <a href='{% uri "content list"}?author=content.author.username'>
+	Author: <a href='{% url "content list" %}?author={{ content.author.username }}'>
 		{{ content.author.first_name }} {{ content.author.last_name }}
 	</a>
 </div>
 <div class='tags'>
 	{% for tag in content.tags.all %}{% if forloop.first %}Tagged as: {% endif %}
-		<a href='{% url "content list"%}?tag={{ tag.slug }}'>{{ tag }}</a>{% if not forloop.last %}, {% endif %}
+		<a href='{% url "content list" %}?tag={{ tag.slug }}'>{{ tag }}</a>{% if not forloop.last %}, {% endif %}
 	{% endfor %}
 </div>
-<div class='parent'>
-	{% for parent in content.parent.all %}{% if forloop.first %}Archived in: {% endif %}
-		<a href='{% url "content" uri=parent.uri %}'>{{ parent.title }}</a>{% if not forloop.last %}, {% endif %}
-	{% endfor %}
-</div>
+{% for parent in content.parent.all %}
+	{% if forloop.first %}<div class='parent'>Archived under: {% endif %}
+	<a href='{% url "content" uri=parent.uri %}'>{{ parent.title }}</a>{% if not forloop.last %}, {% endif %}
+	{% if forloop.last %}</div>{% endif %}
+{% endfor %}

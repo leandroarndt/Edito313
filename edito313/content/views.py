@@ -10,6 +10,12 @@ class ContentListView(BaseView, ListView):
     def get_queryset(self):
         queryset = super(ContentListView, self).get_queryset()
         
+        # Query string filters:
+        if 'author' in self.request.GET:
+            queryset = queryset.filter(author__username=self.request.GET['author'])
+        if 'tag' in self.request.GET:
+            queryset = queryset.filter(tags__slug=self.request.GET['tag'])
+        
         # Exclude types not shown in archives:
         excluded = Options.objects.filter(exclude_from_archive=True)
         queryset = queryset.exclude(type__in=[opt.type for opt in excluded])
@@ -64,7 +70,7 @@ class ContentDetailView(BaseView, DetailView):
         if args[0].startswith('pk-'): # Has no uniqueness
             return queryset.get(pk=int(args[0][3:]))
         if len(args) == 1: # Is totally unique without prefix
-            return self.queryset.get(slug=args[0])
+            return queryset.get(slug=args[0])
         if len(args) == 2:
             return queryset.get(publishing__year=args[0], slug=args[1])
         elif len(args) == 3:

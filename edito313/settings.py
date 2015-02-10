@@ -56,7 +56,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django.contrib.webdesign',
-    'django_comments',
+    'django_comments', # Not working right now
+    #'django.contrib.comments',
     'ckeditor',
     'taggit',
     'djangospam',
@@ -66,7 +67,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
-    #'django.middleware.common.CommonMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
@@ -76,7 +77,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'edito313.urls'
-APPEND_SLASH = False # Content URLs won't work if we append slashes.
+#APPEND_SLASH = False # Content URLs won't work if we append slashes.
 
 WSGI_APPLICATION = 'edito313.wsgi.application'
 

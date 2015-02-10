@@ -1,0 +1,10 @@
+<dl id="comments">
+  {% for comment in comment_list %}
+    <dt id="c{{ comment.id }}">
+        On {{ comment.submit_date }} <a href='{{ comment.url }}'>{{ comment.name }}</a> said:
+    </dt>
+    <dd>
+        <p>{{ comment.comment }}</p>
+    </dd>
+  {% endfor %}
+</dl>
