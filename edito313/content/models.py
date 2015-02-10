@@ -54,7 +54,7 @@ added at runtime."""
     def uri(self):
         """Return content URI according to options."""
         opt = Options.get(self)
-        uri = '/'+opt.uri_prefix # TODO: change site model to allow a per-site prefix.
+        uri = opt.uri_prefix # TODO: change site model to allow a per-site prefix.
         if opt.unique == Options.UNIQUE.TOTALLY_UNIQUE.name:
             return uri + self.slug
         elif opt.unique == Options.UNIQUE.DATE.name:

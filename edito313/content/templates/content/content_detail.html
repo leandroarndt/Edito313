@@ -6,9 +6,12 @@
 
 {% block content %}
 	<main>
-		<h2><a href='{{ content.uri }}'>
-			{{ content.title }}</a></h2>
-		{{ content.text|safe|urlize|linebreaks }}
+		<article>
+			<h2><a href='{% url "content" uri=content.uri %}'>{{ content.title }}</a></h2>
+			{{ content.text|safe|urlize|linebreaks }}
+			<meta>
+				{% include 'content/content_meta.html' %}
+			</meta>
+		</article>
 	</main>
 {% endblock %}
-

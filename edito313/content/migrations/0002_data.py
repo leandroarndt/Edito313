@@ -14,6 +14,10 @@ def default_options(apps, schema_editor):
     page = Opt(type='PAGE', unique='TOTALLY_UNIQUE', uri_prefix='',
                    exclude_from_archive=True)
     page.save()
+    category = Opt(type='CATEGORY', unique='TOTALLY_UNIQUE', uri_prefix='category/',
+                   exclude_from_archive=True)
+    category.save()
+
 
 class Migration(migrations.Migration):
 
